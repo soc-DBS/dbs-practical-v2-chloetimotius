@@ -14,7 +14,7 @@ model course {
   crseFee   Decimal  @map("crse_fee") @db.Decimal(7, 2)
   labFee    Decimal? @map("lab_fee") @db.Decimal(7, 2)
 }
-
+ 
 model department {
   deptCode         String    @id @map("dept_code") @db.VarChar(5)
   deptName         String    @map("dept_name") @db.VarChar(100)
@@ -25,7 +25,7 @@ model department {
   expenditure      Decimal?  @db.Decimal(9, 2)
   hodApptDate      DateTime? @map("hod_appt_date") @db.Date
 }
-
+ 
 model staff {
   staffNo           String   @id @map("staff_no") @db.Char(4)
   staffName         String   @map("staff_name") @db.VarChar(100)
@@ -44,7 +44,7 @@ model staff {
   highestQln        String   @map("highest_qln") @db.VarChar(10)
   designation       String   @db.VarChar(20)
 }
-
+ 
 model staffBackup {
   staffNo          String   @id @map("staff_no") @db.Char(4)
   staffName        String   @map("staff_name") @db.VarChar(100)
@@ -62,29 +62,23 @@ model staffBackup {
   typeOfEmployment String   @map("type_of_employment") @db.VarChar(2)
   highestQln       String   @map("highest_qln") @db.VarChar(10)
   designation      String   @db.VarChar(20)
-
+ 
   @@map("staff_backup")
 }
-
+ 
 model userAccount {
   id        Int    @id
   accountNo String @map("account_no") @db.VarChar(6)
   role      Int
   password  String @db.VarChar(255)
-
+ 
   @@map("user_account")
 }
-
+ 
 model userRole {
   id   Int    @id
   name String @db.VarChar(25)
-
+ 
   @@map("user_role")
 }
 
-model module {
-  modCode    String  @id @map("mod_code") 
-  modName    String  @map("mod_name")     @db.VarChar(100)
-  creditUnit Int     @map("credit_unit")
-
-}
