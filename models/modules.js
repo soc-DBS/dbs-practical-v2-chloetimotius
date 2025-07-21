@@ -1,105 +1,101 @@
-const { query } = require('../database');
-const { EMPTY_RESULT_ERROR, SQL_ERROR_CODE, UNIQUE_VIOLATION_ERROR } = require('../errors');
+const { PrismaClient, Prisma } = require('@prisma/client'); 
+const prisma = new PrismaClient(); 
 
-/*module.exports.create = function create(code, name, credit) {
-    const sql = `INSERT INTO module (mod_code, mod_name, credit_unit) VALUES ($1, $2, $3)`;
-    return query(sql, [code, name, credit]).catch(function (error) {
-        if (error.code === SQL_ERROR_CODE.UNIQUE_VIOLATION) {
-            throw new UNIQUE_VIOLATION_ERROR(`Module ${code} already exists`);
+// CREATE
+module.exports.create = function create(code, name, credit) {
+    return prisma.module.create({
+        //TODO: Add data
+        data: {
+            modCode: code,
+            modName: name,
+            creditUnit: parseInt(credit)
+        }
+    }).then(function (module) {
+        //TODO: Return module
+        return module;
+    }).catch(function (error) {
+             // Prisma error codes: https://www.prisma.io/docs/orm/reference/errorreference#p2002 
+            // TODO: Handle Prisma Error, throw a new error if module already exists     
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === 'P2002') {
+                // Unique constraint violation
+                throw new Error(`The module ${code} already exists`);
+            }
         }
         throw error;
     });
-};*/
-
-/*module.exports.create = function create(code, name, credit) { 
-    return query('CALL create_module($1, $2, $3)', [code, name, credit]) 
-        .then(function (result) { 
-            console.log('Module created successfully'); 
-        }) 
-        .catch(function (error) { 
-            throw error; 
-        });
-};*/
-
-module.exports.create = function create(code, name, credit) { 
-    const sql = 'CALL create_module($1, $2, $3)'; 
-    return query(sql, [code, name, credit]) 
-        .then(function (result) { 
-            console.log('Module created successfully'); 
-        }) 
-        .catch(function (error) { 
-            if (error.code === SQL_ERROR_CODE.UNIQUE_VIOLATION) { 
-                throw new UNIQUE_VIOLATION_ERROR(`Module ${code} already exists! 
-Cannot create duplicate.`); 
-            } 
-            throw error; 
-        }); 
 };
 
-module.exports.retrieveByCode = function retrieveByCode(code) {
-    const sql = `SELECT * FROM module WHERE mod_code = $1`;
-    return query(sql, [code]).then(function (result) {
-        const rows = result.rows;
-
-        if (rows.length === 0) {
-            // Note: result.rowCount returns the number of rows processed instead of returned
-            // Read more: https://node-postgres.com/apis/result#resultrowcount-int--null
-            throw new EMPTY_RESULT_ERROR(`Module ${code} not found!`);
-        }
-
-        return rows[0];
-    });
-};
-
-module.exports.deleteByCode = function deleteByCode(code) {
-    // Note:
-    // If using raw sql: Can use result.rowCount to check the number of rows affected
-    // But if using function/stored procedure, result.rowCount will always return null
-    const sql = `DELETE FROM module WHERE mod_code = $1`;
-    return query(sql, [code]).then(function (result) {
-        const rows = result.rowCount;
-
-        if (rows === 0) {
-            // Note: result.rowCount returns the number of rows processed instead of returned
-            // Read more: https://node-postgres.com/apis/result#resultrowcount-int--null
-            throw new EMPTY_RESULT_ERROR(`Module ${code} not found!`);
-        }
-    })
-};
-
+// UPDATE
 module.exports.updateByCode = function updateByCode(code, credit) {
-    // Note:
-    // If using raw sql: Can use result.rowCount to check the number of rows affected
-    // But if using function/stored procedure, result.rowCount will always return null
-    const sql = `UPDATE module SET credit_unit = $1 WHERE mod_code = $2`;
-    return query(sql, [credit, code]).then(function (result) {
-        const rows = result.rowCount;
-
-        if (rows === 0) {
-            // Note: result.rowCount returns the number of rows processed instead of returned
-            // Read more: https://node-postgres.com/apis/result#resultrowcount-int--null
-            throw new EMPTY_RESULT_ERROR(`Module ${code} not found!`);
+    return prisma.module.update({
+        //TODO: Add where and data
+        where: {
+            modCode: code
+        },
+        data: {
+            creditUnit: parseInt(credit)
         }
-    })
-};
-
-module.exports.retrieveAll = function retrieveAll() {
-    const sql = `SELECT * FROM module`;
-    return query(sql).then(function (result) {
-        return result.rows;
+    }).then(function (module) {
+        // Leave blank
+        return module;
+    }).catch(function (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                    // Prisma error codes: https://www.prisma.io/docs/orm/reference/errorreference#p2025 
+        // TODO: Handle Prisma Error, throw a new error if module is not found  
+            if (error.code === 'P2025') {
+                // Record not found
+                throw new Error(`The module ${code} was not found`);
+            }
+        }
+        throw error;
     });
 };
 
-module.exports.retrieveBulk = function retrieveBulk(codes) {
-    const sql = 'SELECT * FROM module WHERE code IN ($1)';
-    return query(sql, [codes]).then(function (response) {
-        const rows = response.rows;
-        const result = {};
-        for (let i = 0; i < rows.length; i += 1) {
-            const row = rows[i];
-            const code = row.code;
-            result[code] = row;
+// DELETE
+module.exports.deleteByCode = function deleteByCode(code) {
+    return prisma.module.delete({
+        //TODO: Add where 
+        where: {
+            modCode: code
         }
-        return result;
+    }).then(function (module) {
+        // Leave blank 
+        return module;
+    }).catch(function (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                   // Prisma error codes: https://www.prisma.io/docs/orm/reference/errorreference#p2025 
+        // TODO: Handle Prisma Error, throw a new error if module is not found     
+            if (error.code === 'P2025') {
+                throw new Error(`The module ${code} was not found`);
+            }
+        }
+        throw error;
+    });
+};
+
+// RETRIEVE ALL
+module.exports.retrieveAll = function retrieveAll() {
+    return prisma.module.findMany();
+};
+
+// RETRIEVE SINGLE
+module.exports.retrieveByCode = function retrieveByCode(code) {
+           // TODO: complete the entire function 
+ 
+        // Prisma error codes: https://www.prisma.io/docs/orm/reference/errorreference#p2025 
+        // TODO reminder: Handle Prisma Error, throw a new error if module is not found                              
+        // TODO reminder: Return module at the end 
+    return prisma.module.findUnique({
+        where: {
+            modCode: code
+        }
+    }).then(function (module) {
+        if (!module) {
+            throw new Error(`The module ${code} was not found`);
+        }
+        return module;
+    }).catch(function (error) {
+        throw error;
     });
 };
